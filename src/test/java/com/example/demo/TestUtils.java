@@ -36,39 +36,39 @@ public class TestUtils {
 
     }
 
-    public static User createUser() {
+    public static User createUserTestTest() {
         User user = new User();
         user.setId(1L);
-        user.setUsername("fymo");
-        user.setPassword("password");
-        user.setCart(createCart(user));
+        user.setUsername("user name 1");
+        user.setPassword("TestPassword");
+        user.setCart(createCartTest(user));
 
         return user;
     }
 
-    public static Cart createCart(User user) {
+    public static Cart createCartTestTest(User user) {
         Cart cart = new Cart();
         cart.setId(1L);
-        List<Item> items = createItems();
-        cart.setItems(createItems());
+        List<Item> items = createAItemTestsTest();
+        cart.setItems(createAItemTestsTest());
         cart.setTotal(items.stream().map(item -> item.getPrice()).reduce(BigDecimal::add).get());
         cart.setUser(user);
 
         return cart;
     }
 
-    public static List<Item> createItems() {
+    public static List<Item> createAItemTestsTestTest() {
 
         List<Item> items = new ArrayList<>();
 
         for (int i = 1; i <= 2; i++) {
-            items.add(createItem(i));
+            items.add(createAItemTest(i));
         }
 
         return items;
     }
 
-    public static Item createItem(long id){
+    public static Item createAItemTest(long id){
         Item item = new Item();
         item.setId(id);
 
@@ -76,20 +76,20 @@ public class TestUtils {
 
         item.setName("Item " + item.getId());
 
-        item.setDescription("Description ");
+        item.setDescription("Description: "+  item.getItemByName());
         return item;
     }
 
-    public static List<UserOrder> createOrders(){
+    public static List<UserOrder> createOrdersTestTest(){
         List<UserOrder> orders = new ArrayList<>();
 
         IntStream.range(0,2).forEach(i -> {
             UserOrder order = new UserOrder();
-            Cart cart = createCart(createUser());
+            Cart cart = createCartTest(createUserTest());
 
             order.setItems(cart.getItems());
             order.setTotal(cart.getTotal());
-            order.setUser(createUser());
+            order.setUser(createUserTest());
             order.setId(Long.valueOf(i));
 
             orders.add(order);

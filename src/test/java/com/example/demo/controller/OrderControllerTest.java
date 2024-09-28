@@ -33,24 +33,24 @@ public class OrderControllerTest {
     private OrderRepository orderRepository;
 
     @Before
-    public void setup(){
-        User user = createUser();
+    public void init(){
+        User user = createUserTest();
 
-        when(userRepository.findByUsername("fymo")).thenReturn(user);
-        when(orderRepository.findByUser(any())).thenReturn(createOrders());
+        when(userRepository.findByUsername("")).thenReturn(user);
+        when(orderRepository.findByUser(any())).thenReturn(createOrdersTest());
     }
 
     @Test
-    public void verify_submit(){
+    public void submit(){
 
-        ResponseEntity<UserOrder> response = orderController.submit("fymo");
+        ResponseEntity<UserOrder> response = orderController.submit("user name 1");
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
 
         UserOrder order = response.getBody();
 
-        assertEquals(createItems(), order.getItems());
-        assertEquals(createUser().getId(), order.getUser().getId());
+        assertEquals(createAItemTestsTest(), order.getItems());
+        assertEquals(createUserTest().getId(), order.getUser().getId());
 
 
         verify(orderRepository, times(1)).save(order);
@@ -58,32 +58,29 @@ public class OrderControllerTest {
     }
 
     @Test
-    public void verify_submitInvalid(){
+    public void submitInvalid(){
 
-        ResponseEntity<UserOrder> response = orderController.submit("invalid username");
+        ResponseEntity<UserOrder> response = orderController.submit("user name 2");
         assertNotNull(response);
         assertEquals(404, response.getStatusCodeValue());
 
         assertNull( response.getBody());
 
-        verify(userRepository, times(1)).findByUsername("invalid username");
+        verify(userRepository, times(1)).findByUsername("user name 2");
     }
 
     @Test
-    public void verify_getOrdersForUser(){
+    public void getOrdersForAnUser(){
 
-        ResponseEntity<List<UserOrder>> response = orderController.getOrdersForUser("fymo");
+        ResponseEntity<List<UserOrder>> response = orderController.getOrdersForUser("user name 1");
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
 
         List<UserOrder> orders = response.getBody();
 
 
-        assertEquals(createOrders().size(), orders.size());
+        assertEquals(createOrdersTest().size(), orders.size());
 
     }
-
-    @Test
-    public void verify_getOrdersForUserInvalid(){}
 
 }

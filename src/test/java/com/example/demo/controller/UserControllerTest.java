@@ -5,7 +5,7 @@ import com.example.demo.controllers.UserController;
 import com.example.demo.model.persistence.User;
 import com.example.demo.model.persistence.repositories.CartRepository;
 import com.example.demo.model.persistence.repositories.UserRepository;
-import com.example.demo.model.requests.CreateUserRequest;
+import com.example.demo.model.requests.createUserTestRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.ResponseEntity;
@@ -38,15 +38,15 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUserHappyPath(){
-        when(encoder.encode("testPassword")).thenReturn("thisIsHashed");
+    public void createUserTest(){
+        when(encoder.encode("TestPassword")).thenReturn("Password Hashed");
 
-        CreateUserRequest request = new CreateUserRequest();
+        createUserTestRequest request = new createUserTestRequest();
         request.setUsername("test");
-        request.setPassword("testPassword");
-        request.setConfirmPassword("testPassword");
+        request.setPassword("TestPassword");
+        request.setConfirmPassword("TestPassword");
 
-        ResponseEntity<User> response = userController.createUser(request);
+        ResponseEntity<User> response = userController.createUserTest(request);
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
@@ -57,16 +57,16 @@ public class UserControllerTest {
 
         assertEquals(0, user.getId());
         assertEquals("test", user.getUsername());
-        assertEquals("thisIsHashed", user.getPassword());
+        assertEquals("Password Hashed", user.getPassword());
 
     }
 
     @Test
-    public void verify_findById(){
+    public void findById(){
         long id = 1L;
         User user = new User();
         user.setUsername("test");
-        user.setPassword("testPassword");
+        user.setPassword("TestPassword");
         user.setId(id);
 
         when(userRepository.findById(id)).thenReturn(Optional.of(user));
@@ -82,7 +82,7 @@ public class UserControllerTest {
 
         assertEquals(id, actualUser.getId());
         assertEquals("test", actualUser.getUsername());
-        assertEquals("testPassword", actualUser.getPassword());
+        assertEquals("TestPassword", actualUser.getPassword());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class UserControllerTest {
         long id = 1L;
         User user = new User();
         user.setUsername("test");
-        user.setPassword("testPassword");
+        user.setPassword("TestPassword");
         user.setId(id);
 
         when(userRepository.findByUsername("test")).thenReturn(user);
@@ -106,7 +106,7 @@ public class UserControllerTest {
 
         assertEquals(id, actualUser.getId());
         assertEquals("test", actualUser.getUsername());
-        assertEquals("testPassword", actualUser.getPassword());
+        assertEquals("TestPassword", actualUser.getPassword());
     }
 
 }

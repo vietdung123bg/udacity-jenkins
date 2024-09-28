@@ -29,42 +29,42 @@ public class ItemControllerTest {
     @Mock
     private ItemRepository itemRepository;
     @Before
-    public void setup(){
+    public void init(){
 
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(createItem(1)));
-        when(itemRepository.findAll()).thenReturn(createItems());
-        when(itemRepository.findByName("item")).thenReturn(Arrays.asList(createItem(1), createItem(2)));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(createAItemTest(1)));
+        when(itemRepository.findAll()).thenReturn(createAItemTestsTest());
+        when(itemRepository.findByName("item 1")).thenReturn(Arrays.asList(createAItemTest(1), createAItemTest(2)));
 
     }
 
     @Test
-    public void verify_getItems(){
+    public void getAllItems(){
         ResponseEntity<List<Item>> response = itemController.getItems();
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
         List<Item> items = response.getBody();
 
-        assertEquals(createItems(), items);
+        assertEquals(createAItemTestsTest(), items);
 
         verify(itemRepository , times(1)).findAll();
     }
 
     @Test
-    public void verify_getItemById(){
+    public void getItemById(){
 
         ResponseEntity<Item> response = itemController.getItemById(1L);
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
 
         Item item = response.getBody();
-        assertEquals(createItem(1L), item);
+        assertEquals(createAItemTest(1L), item);
 
         verify(itemRepository, times(1)).findById(1L);
     }
 
     @Test
-    public void verify_getItemByIdInvalid(){
+    public void getItemByInvalidId(){
 
         ResponseEntity<Item> response = itemController.getItemById(10L);
         assertNotNull(response);
@@ -75,27 +75,27 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void verify_getItemByName(){
-        ResponseEntity<List<Item>> response = itemController.getItemsByName("item");
+    public void getItemByName(){
+        ResponseEntity<List<Item>> response = itemController.getItemsByName("item 1");
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
-        List<Item> items = Arrays.asList(createItem(1), createItem(2));
+        List<Item> items = Arrays.asList(createAItemTest(1), createAItemTest(2));
 
-        assertEquals(createItems(), items);
+        assertEquals(createAItemTestsTest(), items);
 
-        verify(itemRepository , times(1)).findByName("item");
+        verify(itemRepository , times(1)).findByName("item 1");
     }
 
     @Test
-    public void verify_getItemByNameInvalid(){
-        ResponseEntity<List<Item>> response = itemController.getItemsByName("invalid name");
+    public void getItemByInvalidName(){
+        ResponseEntity<List<Item>> response = itemController.getItemsByName("item 2");
 
         assertNotNull(response);
         assertEquals(404, response.getStatusCodeValue());
 
         assertNull(response.getBody());
 
-        verify(itemRepository , times(1)).findByName("invalid name");
+        verify(itemRepository , times(1)).findByName("item 2");
     }
 }

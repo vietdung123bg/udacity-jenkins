@@ -40,21 +40,21 @@ public class CartControllerTest {
     private ItemRepository itemRepository;
 
     @Before
-    public void setup(){
+    public void init(){
 
-        when(userRepository.findByUsername("fymo")).thenReturn(createUser());
-        when(itemRepository.findById(any())).thenReturn(Optional.of(createItem(1)));
+        when(userRepository.findByUsername("user name 1")).thenReturn(createUserTest());
+        when(itemRepository.findById(any())).thenReturn(Optional.of(createAItemTest(1)));
 
     }
 
 
 
     @Test
-    public void verify_addToCart(){
+    public void addToCart(){
         ModifyCartRequest request = new ModifyCartRequest();
         request.setQuantity(3);
         request.setItemId(1);
-        request.setUsername("fymo");
+        request.setUsername("user name 1");
 
         ResponseEntity<Cart> response = cartController.addTocart(request);
         assertNotNull(response);
@@ -62,18 +62,18 @@ public class CartControllerTest {
 
         Cart actualCart = response.getBody();
 
-        Cart generatedCart = createCart(createUser());
+        Cart generatedCart = createCartTest(createUserTest());
 
         assertNotNull(actualCart);
 
-        Item item = createItem(request.getItemId());
+        Item item = createAItemTest(request.getItemId());
         BigDecimal itemPrice = item.getPrice();
 
         BigDecimal expectedTotal = itemPrice.multiply(BigDecimal.valueOf(request.getQuantity())).add(generatedCart.getTotal());
 
-        assertEquals("fymo", actualCart.getUser().getUsername());
+        assertEquals("user name 1", actualCart.getUser().getUsername());
         assertEquals(generatedCart.getItems().size() + request.getQuantity(), actualCart.getItems().size());
-        assertEquals(createItem(1), actualCart.getItems().get(0));
+        assertEquals(createAItemTest(1), actualCart.getItems().get(0));
         assertEquals(expectedTotal, actualCart.getTotal());
 
         verify(cartRepository, times(1)).save(actualCart);
@@ -81,12 +81,12 @@ public class CartControllerTest {
     }
 
     @Test
-    public void verify_removeFromCart(){
+    public void removeFromCart(){
 
         ModifyCartRequest request = new ModifyCartRequest();
         request.setQuantity(1);
         request.setItemId(1);
-        request.setUsername("fymo");
+        request.setUsername("user name 1");
 
         ResponseEntity<Cart> response = cartController.removeFromcart(request);
         assertNotNull(response);
@@ -94,18 +94,18 @@ public class CartControllerTest {
 
         Cart actualCart = response.getBody();
 
-        Cart generatedCart = createCart(createUser());
+        Cart generatedCart = createCartTest(createUserTest());
 
         assertNotNull(actualCart);
 
-        Item item = createItem(request.getItemId());
+        Item item = createAItemTest(request.getItemId());
         BigDecimal itemPrice = item.getPrice();
 
         BigDecimal expectedTotal = generatedCart.getTotal().subtract(itemPrice.multiply(BigDecimal.valueOf(request.getQuantity())));
 
-        assertEquals("fymo", actualCart.getUser().getUsername());
+        assertEquals("user name 1", actualCart.getUser().getUsername());
         assertEquals(generatedCart.getItems().size() - request.getQuantity(), actualCart.getItems().size());
-        assertEquals(createItem(2), actualCart.getItems().get(0));
+        assertEquals(createAItemTest(2), actualCart.getItems().get(0));
         assertEquals(expectedTotal, actualCart.getTotal());
 
         verify(cartRepository, times(1)).save(actualCart);
@@ -113,12 +113,12 @@ public class CartControllerTest {
     }
 
     @Test
-    public void verify_InvalidUsername(){
+    public void invalidUsername(){
 
         ModifyCartRequest request = new ModifyCartRequest();
         request.setQuantity(1);
         request.setItemId(1);
-        request.setUsername("invalidUser");
+        request.setUsername("user name 2");
 
         ResponseEntity<Cart> removeResponse = cartController.removeFromcart(request);
         assertNotNull(removeResponse);
@@ -130,7 +130,7 @@ public class CartControllerTest {
         assertEquals(404, addResponse.getStatusCodeValue());
         assertNull(addResponse.getBody());
 
-        verify(userRepository, times(2)).findByUsername("invalidUser");
+        verify(userRepository, times(2)).findByUsername("user name 2");
 
     }
 
