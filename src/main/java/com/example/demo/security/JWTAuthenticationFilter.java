@@ -1,8 +1,6 @@
 package com.example.demo.security;
 
 import com.auth0.jwt.JWT;
-import com.example.demo.controllers.UserController;
-import com.example.demo.model.persistence.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,8 +8,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +22,7 @@ import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private Logger log = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
 
     private AuthenticationManager authenticationManager;
 
@@ -36,15 +34,17 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest req,
                                                 HttpServletResponse res) throws AuthenticationException {
         try {
-            User creds = new ObjectMapper().readValue(req.getInputStream(), User.class);
-
+            com.example.demo.model.persistence.User credentials = new ObjectMapper()
+                    .readValue(req.getInputStream(), com.example.demo.model.persistence.User.class);
+            log.info("Attempting authentication for user {}", credentials.getUsername());
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            creds.getUsername(),
-                            creds.getPassword(),
+                            credentials.getUsername(),
+                            credentials.getPassword(),
                             new ArrayList<>())
             );
         } catch (IOException e) {
+            log.error("Authentication attempt failed: ", e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -53,13 +53,23 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest req,
                                             HttpServletResponse res,
                                             FilterChain chain,
-                                            Authentication auth) throws IOException, ServletException {
-        String username = ((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername();
+                                            Authentication auth) {
+
         String token = JWT.create()
-                .withSubject(username)
+                .withSubject(((User) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
                 .sign(HMAC512(SecurityConstants.SECRET.getBytes()));
         res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
-        log.info("Login Successfully - User name : \"" + username + "\"");
+        log.info("User {} authenticated, JWT issued", ((User) auth.getPrincipal()).getUsername());
     }
+
+    @Override
+    protected void unsuccessfulAuthentication(javax.servlet.http.HttpServletRequest request,
+                                              javax.servlet.http.HttpServletResponse response,
+                                              AuthenticationException failed)
+            throws IOException, javax.servlet.ServletException {
+        log.error("Authentication attempt failed. {}.", failed.getMessage());
+        super.unsuccessfulAuthentication(request, response, failed);
+    }
+
 }
